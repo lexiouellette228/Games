@@ -46,7 +46,7 @@ Play Now: [(https://www.cyberherohq.com/games/password-hub)]
 - Users can input a password and the strength will be evalulated by length and character choices.
 - Play Now: [(https://www.cyberherohq.com/games/password-hub)]
 
-- ### Password Game
+### Password Game
 - A game to test password strength knowledge.
 - Players will decide if a password is strong or weak.
 - Feedback is given for each choice. 
