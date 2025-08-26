@@ -27,7 +27,7 @@ Play Now: [(https://www.cyberherohq.com/games/hook-the-phish)]
 
 - Concept: Cyber Heroes series — teaching kids how to spot phishing attempts in a fun way!
 
-# Password Based Games
+# Password-Based Games
 
 Check password strength, generate passwords, and play the password game.
 
@@ -57,3 +57,46 @@ Play Now: [(https://www.cyberherohq.com/games/password-hub)]
 - Built with **Next.js 14+ App Router**.
 
 - Concept: Cyber Heroes series — teaching kids how to build strong passwords!
+
+---
+
+# Privacy-Based Games
+
+Games to teach what is safe to share online, what should be kept private, and who to trust. 
+
+Play Now: [(https://www.cyberherohq.com/games/privacy-hub)]
+
+---
+
+### Permission Panic
+- An educational game privacy permission mini-game built with **Next.js**, **React**, and **Bootstrap**.
+- **Game Play:** Pick the safest settings for each pretend app.
+- For every permission:(Camera, Microphone, Location, Contacts, Photos), choose:
+  - Deny: the app can't use it (default setting)
+  - Ask Parent: get permission first
+  - Allow: the app can use it
+- Submission Decision: to check your choices.
+ - If your setup is safe enough, you pass that app. If not, you lose a heart and learn why.
+- Hearts = lives: Run out of hearts and the round ends.
+- (Optional) Timer: If it’s on, finish before time runs out.
+- Score: Higher for safer, minimal choices. The score adds up across apps.
+- **Play Now:** [(https://www.cyberherohq.com/games/privacy-hub)]
+
+### Privacy Protector
+- An educational game privacy protection mini-game built with **Next.js**, **React**, and **Bootstrap**.
+- **Game Play:** Keep private information safe.
+  - Read the card: and decide if you should Keep Private or Share.
+  - Use a Hint (flashlight) if you’re not sure.
+  - Click Next to go to the following card.
+- If your setup is safe enough, you pass that app. If not, you lose a heart and see why.
+  - Hearts = lives: Run out of hearts and the round ends.
+- (Optional) Timer: If it’s on, finish before time runs out.
+- Score & streak: Safer choices and streaks earn more points.
+- **Play Now:** [(https://www.cyberherohq.com/games/privacy-hub)]
+
+---
+
+## Credits
+- Built with **Next.js 14+ App Router**.
+
+- Concept: Cyber Heroes series — teaching kids how safe privacy practices!
