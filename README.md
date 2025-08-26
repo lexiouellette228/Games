@@ -7,8 +7,6 @@ All games were created as part of the Cyber Heroes educational project at Cyber 
 
 Hook the Phish is a fun, kid-friendly educational game designed to help players learn how to recognize and avoid phishing attempts. Featuring Phishing Phighter, this game blends entertainment with cybersecurity awareness to teach players the difference between safe and suspicious online content.
 
----
-
 ## Gameplay
 - Move your mouse (or finger on mobile) to slide Phishing Phighter’s boat left and right.
 - Click or tap to cast the fishing hook straight down.
@@ -100,8 +98,6 @@ An educational & interactive game that helps kids and beginners understand app p
 - Frontend: React + TypeScript
 - UI/Animations: Framer Motion, Bootstrap/Custom CSS
 - Icons: React Icons
-  
----
 
 #### Educational Objectives
 - Understand the importance of not oversharing personal info.
@@ -131,7 +127,6 @@ The Privacy Protector Game is a fun, interactive web-based game designed to teac
 - UI/Animations: Framer Motion, Bootstrap/Custom CSS
 - Icons: React Icons
   
----
 
 #### Educational Objectives
 - Understand the importance of not oversharing personal info.
@@ -167,8 +162,6 @@ Play Now: [(https://www.cyberherohq.com/games/cyber-puzzle]
 - SweetAlert2 for instructions and alerts  
 - Bootstrap 5 for responsive layout and styling
 
----
-
 ### Educational Objectivies
 - Recognize digital threats
 - Learn how cybersecurity tools protect systems
@@ -201,8 +194,6 @@ Play Now: [(https://www.cyberherohq.com/games/memory)]
 - SweetAlert2 for instructions and alerts  
 - Bootstrap 5 for responsive layout and styling
 
----
-
 ### Educational Objectives
 - Strengthen memory skills
 - Learn cybersecurity vocabulary through repetition
@@ -211,7 +202,7 @@ Play Now: [(https://www.cyberherohq.com/games/memory)]
  
 ---
 
-# Credits (All Games)
+## Credits (All Games)
 - Built with **Next.js 14+ App Router**.
 - Concept: The Cyber Heroes series — teaching kids how safe online practives!
 - Graphics: cartoon assets (fish, boat, envelope, hero) made with DALL-E and Edited using Canva.
