@@ -18,7 +18,7 @@ Players take control of **Phishing Phighter** in a boat, casting a hook to catch
 
 ---
 
-Play Now: [(https://cyberherohq.com/games/htp)]
+Play Now: [(https://www.cyberherohq.com/games/hook-the-phish)]
 
 ## Credits
 - Built with **Next.js 14+ App Router**.
