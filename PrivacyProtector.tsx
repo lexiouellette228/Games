@@ -1,3 +1,7 @@
+//Game: Keep private information safe.
+//Read the card: and decide if you should Keep Private or Share
+//Author: Lexi Ouellette
+
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,6 +12,8 @@ import { IoMdHeart } from "react-icons/io";
 import { IoMdHeartDislike } from "react-icons/io";
 import Swal from "sweetalert2";
 
+// ----- Types -----
+// Game scenario
 export type Scenario = {
   id: string;
   text: string;
@@ -17,6 +23,7 @@ export type Scenario = {
   risk?: "low" | "med" | "high"; 
 };
 
+// Game result
 export type GameResult = {
   score: number;
   correct: number;
@@ -24,6 +31,7 @@ export type GameResult = {
   mistakes: Array<{ scenario: Scenario; chosen: "share" | "shield" }>; 
 };
 
+// Game props
 export type PrivacyProtectorGameProps = {
   totalQuestions?: number; // default 10
   durationSec?: number; // 0 = no timer
@@ -34,7 +42,7 @@ export type PrivacyProtectorGameProps = {
   onEnd?: (result: GameResult) => void;
 };
 
-// --- Scenario Catalog (customize freely) ---
+// --- Scenario Catalog ---
 const SCENARIOS: Scenario[] = [
   {
     id: "pp1",
@@ -158,6 +166,7 @@ const SCENARIOS: Scenario[] = [
   },
 ];
 
+// Shuffle scenarios
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -176,6 +185,7 @@ export default function PrivacyProtectorGame({
   onIncorrect,
   onEnd,
 }: PrivacyProtectorGameProps) {
+  // ----- Constants -----
   const deck = useMemo(() => shuffle(SCENARIOS).slice(0, Math.min(totalQuestions, SCENARIOS.length)), [totalQuestions]);
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -189,11 +199,12 @@ export default function PrivacyProtectorGame({
   const [feedback, setFeedback] = useState<null | { correct: boolean; chosen: "share" | "shield" }>(null);
   const [showInstructions, setShowInstructions] = useState(false);
 
+      // Show instructions
       useEffect(() => {
         showInstructionsOnOpen();
       }, []);
     
-    
+      // Show instructions on page open with SweetAlert
       const showInstructionsOnOpen = () => {
         Swal.fire({
           title: 'How to Play Privacy Protector',
@@ -266,6 +277,7 @@ export default function PrivacyProtectorGame({
     }
   }
 
+  // Check choice
   function handleAction(choice: "share" | "shield") {
     if (!current || over || feedback) return;
     const correct = choice === current.recommended;
@@ -284,10 +296,11 @@ export default function PrivacyProtectorGame({
       setMistakes((m) => [...m, { scenario: current, chosen: choice }]);
       onIncorrect?.(current);
     }
-    // NEW: show feedback panel instead of auto-advancing
+    // show feedback panel
     setFeedback({ correct, chosen: choice });
   }
 
+  // Hints (torch icon) 
   function useTorch() {
     if (torches <= 0 || usedHint || over) return;
     setTorches((t) => t - 1);
@@ -313,6 +326,7 @@ export default function PrivacyProtectorGame({
     return () => window.removeEventListener("keydown", onKey);
   }, [over, current, usedHint, torches, streak, feedback]);
 
+  // Restart game
   function restart() {
     setIndex(0);
     setScore(0);
@@ -329,6 +343,7 @@ export default function PrivacyProtectorGame({
   // UI helpers
   const hearts = Array.from({ length: lives }, (_, i) => i < hp);
 
+  // ----- UI ------
   return (
     <div>
         <h4 className="permission-title">Privacy Protector</h4>
@@ -407,7 +422,7 @@ export default function PrivacyProtectorGame({
                 </button>
               </div>
 
-              {/* NEW: Per-question feedback panel */}
+              {/* Per-question feedback panel */}
               <AnimatePresence>
                 {feedback && (
                   <motion.div
@@ -435,6 +450,7 @@ export default function PrivacyProtectorGame({
           </AnimatePresence>
         )}
 
+        {/* Instruction Modal */}
             {showInstructions && (
                 <div className="modal fade show d-block" role="dialog">
                   <div className="modal-dialog" role="document">
