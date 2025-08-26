@@ -27,12 +27,30 @@ Play Now: [(https://www.cyberherohq.com/games/hook-the-phish)]
 
 - Concept: Cyber Heroes series — teaching kids how to spot phishing attempts in a fun way!
 
-# Password Generator 
+# Password Based Games
 
-An educational password generator built with **Next.js**, **React**, and **Bootstrap**.  
-Players can generate a password between 8-16 characters long with character choices of letters, numbers, and symbols. Password Strength is indicated based on character selections. 
+Check password strength, generate passwords, and play the password game.
 
 Play Now: [(https://www.cyberherohq.com/games/password-hub)]
+
+---
+
+### Password Generator
+- An educational password generator, checker, and quiz built with **Next.js**, **React**, and **Bootstrap**.  
+- Players can generate a password between 8-16 characters long with character choices of letters, numbers, and symbols.
+- Password Strength is evaluated based on character selections. 
+- Play Now: [(https://www.cyberherohq.com/games/password-hub)]
+
+### Password Checker
+- A tool to check the strength of passwords.
+- Users can input a password and the strength will be evalulated by length and character choices.
+- Play Now: [(https://www.cyberherohq.com/games/password-hub)]
+
+- ### Password Game
+- A game to test password strength knowledge.
+- Players will decide if a password is strong or weak.
+- Feedback is given for each choice. 
+- Play Now: [(https://www.cyberherohq.com/games/password-hub)]
 ---
 
 ## Credits
