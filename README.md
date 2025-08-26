@@ -27,3 +27,15 @@ Play Now: [(https://www.cyberherohq.com/games/hook-the-phish)]
 
 - Concept: Cyber Heroes series — teaching kids how to spot phishing attempts in a fun way!
 
+# Password Generator 
+
+An educational password generator built with **Next.js**, **React**, and **Bootstrap**.  
+Players can generate a password between 8-16 characters long with character choices of letters, numbers, and symbols. Password Strength is indicated based on character selections. 
+
+Play Now: [(https://www.cyberherohq.com/games/password-hub)]
+---
+
+## Credits
+- Built with **Next.js 14+ App Router**.
+
+- Concept: Cyber Heroes series — teaching kids how to build strong passwords!
