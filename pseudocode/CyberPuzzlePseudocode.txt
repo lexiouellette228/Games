@@ -1,0 +1,175 @@
+Cyber Puzzle Pseudocode
+
+NOTES
+- Prevent double-scoring: use scoredItems to ensure +10 only once per item.
+- Prevent duplicates in zones: ignore drops for items already placed.
+- Feedback for wrong drop: transient warning toast (no state change).
+- Win condition: all ITEMS placed (independent of score).
+- Accessibility: each drag item should have role="button" and aria-label with item label.
+
+DATA & TYPES
+TYPE Zone = { 'Login' | 'Network' | 'Files' }
+TYPE Item = { id: INT, label: STRING, zone: Zone }
+
+CONST DRAG_TYPE = 'PUZZLE_ITEM'
+
+CONST ITEMS: LIST<Item> = [
+  (1,'Firewall','Network'), (2,'Strong Password','Login'),
+  (3,'Antivirus','Files'), (4,'Multi-Factor Auth','Login'),
+  (5,'VPN','Network'), (6,'Encrypted Storage','Files'),
+  (7,'Biometric Login','Login'), (8,'Email Filter','Network'),
+  (9,'Access Control List (ACL)','Files'), (10,'Session Timeout','Login')
+]
+
+CONST ZONES: LIST<Zone> = ['Login','Network','Files']
+
+CONST TIPS: LIST<STRING> = [ ...secure tips ... ]
+
+HELPERS
+FUNCTION showSecureTips():
+    randomTips ← SAMPLE 4 unique items from TIPS (shuffle then take first 4)
+    DISPLAY_MODAL(
+        title='Secure System Hints',
+        body=unordered_list(randomTips) + 'Pro tip: separate VLANs...'
+    )
+
+DRAG ITEM (left column)
+COMPONENT PuzzleItem(item: Item, disabled: BOOL):
+    // Hook into DnD
+    ENABLE_DRAG(
+        type=DRAG_TYPE,
+        payload=item,
+        canDrag = NOT disabled,
+        onCollect => isDragging
+    )
+
+    RENDER <div>
+        opacity = 0.5 IF isDragging ELSE 1
+        cursor  = 'not-allowed' IF disabled ELSE 'grab'
+        text    = item.label
+
+DROP ZONE (right column)
+COMPONENT DropZone(name: Zone, onDrop: FN(Item, Zone), matchedIds: LIST<INT>):
+    ENABLE_DROP(
+        accept=DRAG_TYPE,
+        onDrop = (draggedItem) => onDrop(draggedItem, name),
+        onCollect => isOver
+    )
+
+    RENDER <panel>
+        header = name
+        background = '#e0f7fa' IF isOver ELSE '#f8f9fa'
+        IF matchedIds.EMPTY:
+            SHOW 'Drop items here'
+        ELSE:
+            FOR each id IN matchedIds:
+                item = FIND ITEMS WHERE item.id == id
+                SHOW pill(item.label)
+
+GAME ROOT
+STATE
+STATE mounted        : BOOL = FALSE             // gate SSR issues
+STATE score          : INT  = 0
+STATE matchedByZone  : MAP<Zone, LIST<INT>> = { Login:[], Network:[], Files:[] }
+STATE scoredItems    : LIST<INT> = []           // item ids already scored
+STATE showInstr      : BOOL = FALSE
+
+DERIVED
+DERIVED remainingItems = FILTER ITEMS WHERE item.id NOT IN FLATTEN(matchedByZone.values)
+
+MOUNT 
+ON_MOUNT:
+    mounted ← TRUE
+    DISPLAY_MODAL(
+        title = 'How to Play “Secure the System”',
+        body  = ordered_list([
+                    'Drag each term to the correct category',
+                    'Categories accept multiple items',
+                    '10 points per correct match',
+                    'Place all items to win'
+                ]) + 'Click Captain Firewall for tips',
+        confirm = 'Let’s go!'
+    )
+
+DROP HANDLER
+FUNCTION handleDrop(item: Item, zone: Zone):
+    correctDrop <- (item.zone == zone)
+    alreadyPlaced <- item.id IN FLATTEN(matchedByZone.values)
+    alreadyScored <- item.id IN scoredItems
+
+    IF correctDrop AND NOT alreadyPlaced:
+        matchedByZone[zone] <- matchedByZone[zone] + [item.id]
+        IF NOT alreadyScored:
+            score <- score + 10
+            scoredItems <- scoredItems + [item.id]
+    ELSE IF NOT correctDrop:
+        DISPLAY_TOAST(
+            title='Try Again',
+            text = '"' + item.label + '" doesn’t belong in ' + zone,
+            type='warning',
+            duration_ms=1200
+        )
+
+RESET
+FUNCTION resetGame():
+    matchedByZone <- { Login:[], Network:[], Files:[] }
+    scoredItems <- []
+    score <- 0
+
+WIN CHECK
+EFFECT when matchedByZone OR score changes:
+    totalPlaced <- LENGTH( FLATTEN(matchedByZone.values) )
+    IF totalPlaced == LENGTH(ITEMS) AND LENGTH(ITEMS) > 0:
+        DISPLAY_MODAL(
+            icon='success',
+            title='All systems secured!',
+            text = 'Final score: ' + score,
+            confirm='Nice!'
+        )
+
+GUARD FOR SSR
+IF NOT mounted:
+    RETURN null
+
+RENDER LAYOUT
+RENDER:
+  PROVIDE_DND_BACKEND(HTML5Backend)
+
+  HEADER:
+    title = 'Secure the System Puzzle'
+    badges = ['Score: ' + score]
+    buttons = [
+        { 'Instructions', onClick => showInstr = TRUE },
+        { 'Play Again',   onClick => resetGame() }
+    ]
+
+  BODY: ROW
+    LEFT COL (draggables):
+        PANEL 'Drag these'
+        IF remainingItems.EMPTY:
+            SHOW 'All items placed!'
+        ELSE:
+            FOR item IN remainingItems:
+                RENDER PuzzleItem(item, disabled=FALSE)
+
+    RIGHT COL (drop zones + hero):
+        GRID of 3 columns:
+            FOR zone IN ZONES:
+                RENDER DropZone(
+                    name=zone,
+                    onDrop=handleDrop,
+                    matchedIds=matchedByZone[zone]
+                )
+        CENTERED HERO IMAGE (Captain Firewall):
+            bobbing animation
+            onClick => showSecureTips()
+
+  MODAL (if showInstr):
+      Title 'Instructions'
+      Body:
+        - Match each item to the system it protects
+        - Drag left → drop right
+        - Multiple correct items per box
+        - 10 points per correct match
+        - Tip: Click Captain Firewall for hints
+      Footer: Close → showInstr = FALSE

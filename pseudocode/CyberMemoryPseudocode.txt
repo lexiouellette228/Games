@@ -1,0 +1,178 @@
+Cyber Memory Game Pseudocode
+
+NOTES
+- Prevent any clicks while two cards are face-up awaiting resolution (handled by flipped.LENGTH == 2 guard).
+- matched stores MATCH_IDs, not indices, so both members of that pair render face-up.
+- On win in hard mode, timer is nulled to stop countdown.
+- You use 90s at hard-mode start, 60s on Reset/Play Again — keep or unify intentionally.
+- Confetti triggers once on win; guard is timeLeft != NULL to avoid retrigger loop.
+
+DATA & CONSTANTS
+DEFINE PAIR = { id: INT, label: STRING, matchId: CharacterData, icon: ICON}
+
+CONST EASY_PAIRS = [ 8 items ]
+CONST HARD_PAIRS = [ EASY_PAIRS + 12 more items ]
+
+FUNCTION SHUFFLE(array):
+    temp = []
+    FOR each value in array:
+        temp.APPEND({ value, sort: RANDOM(0,1) })
+    temp.SORT_BY(sort ascending)
+    RETURN [each.item.value for item in temp]
+
+STATE
+STATE mode          : 'easy' | 'hard'           // difficulty levels
+STATE cards         : LIST<PAIR>                // current deck, shuffled
+STATE flipped       : LIST<INDEX>               // indices of currently face-up (unmatched) cards (0..2)
+STATE matched       : LIST<MATCH_ID>            // matchId values already solved
+STATE turns         : INT                       // number of comparisons made
+STATE timeLeft      : INT | NULL                // countdown in seconds, null for easy mode
+STATE gameOver      : BOOL                      // true if timer reached 0 in hard mode
+STATE showInstr     : BOOL                      // instructions modal
+STATE showDict      : BOOL                      // dictionary modal
+
+INITIALIZATION
+ON COMPONENT MOUNT:
+    If mode == 'easy THEN
+        card <- SHUFFLE(COPY(EASY_PAIRS))
+        timeLeft <- NULL
+    ELSE // 
+        cards <- SHUFFLE(COPY(HARD_PAIRS))
+        timeLeft <- 90 
+    CALL SHOW_INSTRUCTIONS_MODAL()
+
+TIMER (hard mode)
+EFFECT WHEN timeLeft OR gameOver CHANGES:
+    IF timeLeft == NULL OR gameOver == TRUE:
+        EXIT EFFECT
+    IF timeLeft == 0:
+        gameOver <- TRUE
+        EXIT EFFECT
+    SET ONE-SECOND TIMEOUT:
+        timeLeft <- timeLeft - 1 
+
+FLIP CARD HANDLER
+FUNCTION HANDLE_FLIP(index):
+    // Guard rails
+    IF flipped.LENGTH == 2:
+        RETURN  // already comparing two
+    IF index IN flipped:
+        RETURN  // can't reflip the same
+    IF cards[index].matchId IN matched:
+        RETURN  // already solved pair
+
+    // Flip this card
+    flipped ← flipped + [index]
+
+    IF flipped.LENGTH == 2:
+        turns <- turns + 1
+        firstIdx <- flipped[0]
+        secondIdx <- flipped[1]
+        firstCard <- cards[firstIdx]
+        secondCard <- cards[secondIdx]
+
+        IF firstCard.matchId == secondCard.matchId:
+            // it's a match
+            matched <- matched + [firstCard.matchId]
+            AFTER 1s:
+                flipped <- []   // leave matched cards face-up, 'matched' set
+        ELSE:
+            // not a match
+            AFTER 1s:
+                flipped <- []   // flip both back down
+
+WIN EFFECT
+EFFECT WHEN matched OR cards CHANGE:
+    // Win condition: matched count equals number of pairs
+    IF matched.LENGTH == (cards.LENGTH / 2) AND timeLeft != NULL:
+        TRIGGER_CONFETTI(particleCount=150, spread=70, originY=0.6)
+        timeLeft <- NULL     // stop the timer (prevents extra countdown after win)
+
+MODE SWITCH 
+ON MODE CHANGE(newMode):
+    mode <- newMode
+    IF mode == 'easy':
+        cards <- SHUFFLE(COPY(EASY_PAIRS))
+        timeLeft <- NULL
+    ELSE // 'hard':
+        cards <- SHUFFLE(COPY(HARD_PAIRS))
+        timeLeft <- 90
+    flipped <- []
+    matched <- []
+    turns <- 0
+    gameOver <- FALSE
+
+RESET BUTTON
+ON RESET CLICK:
+    cards <- SHUFFLE(COPY( mode == 'easy' ? EASY_PAIRS : HARD_PAIRS ))
+    flipped <- []
+    matched <- []
+    turns <- 0
+    gameOver <- FALSE
+    timeLeft <- (mode == 'hard') ? 60 : NULL   // note: your reset uses 60s here
+
+PLATV AGAIN (shown on Win)
+ON PLAY AGAIN CLICK:
+    cards <- SHUFFLE(COPY( mode == 'easy' ? EASY_PAIRS : HARD_PAIRS ))
+    flipped <- []
+    matched <- []
+    turns <- 0
+    gameOver <- FALSE
+    timeLeft <- (mode == 'hard') ? 60 : NULL
+
+TRY AGAIN (shown on loss)
+IF gameOver == TRUE AND matched.LENGTH < (cards.LENGTH / 2):
+    SHOW "Time's up" UI WITH STATS
+    ON TRY AGAIN CLICK:
+        cards <- SHUFFLE(COPY(HARD_PAIRS))
+        flipped <- []
+        matched <- []
+        turns <- 0
+        timeLeft <- 90
+        gameOver <- FALSE
+
+INSTRUCTIONS MODAL (SweetAlert on Open)
+FUNCTION SHOW_INSTRUCTIONS_MODAL():
+    OPEN MODAL:
+        Title: "How to Play Cyber Memory Match"
+        Body: Ordered list of rules (easy: unlimited; hard: 90s; matched stay up; fewest turns)
+        Button: "Got it!"
+
+IN-PAGE MODALS 
+// Instructions
+ON "Instructions" BUTTON:
+    showInstr <- TRUE
+    // In modal:
+    SHOW static guidance text
+    CLOSE -> showInstr <- FALSE
+
+// Dictionary
+ON "Dictionary" BUTTON:
+    showDict <- TRUE
+    // In modal:
+    SHOW cyber term definitions list
+    CLOSE -> showDict <- FALSE
+
+RENDER
+RENDER ROOT:
+  HEADER: Mode selector (easy/hard)
+  STATUS: "Turns: {turns}" and (if hard) "Time Left: {timeLeft}s"
+  GRID: for index, card IN cards:
+      isFlipped <- (index IN flipped) OR (card.matchId IN matched)
+      TILE:
+        ON CLICK: HANDLE_FLIP(index)
+        IF isFlipped:
+            SHOW icon + label
+        ELSE:
+            SHOW backside puzzle emoji
+
+  BUTTON: Reset (calls RESET logic)
+
+  IF WIN (matched.LENGTH == cards.LENGTH / 2):
+      ALERT success with stats + "Play Again" button
+
+  IF LOSS (gameOver == TRUE AND not all matched):
+      ALERT danger with stats + "Try Again" button
+
+  MODAL: Instructions (if showInstr)
+  MODAL: Dictionary (if showDict)
